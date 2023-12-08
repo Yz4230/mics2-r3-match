@@ -100,7 +100,7 @@ func main() {
 	createDirIfNotExists(outdir)
 	fmt.Printf("outdir: %s\n", outdir)
 
-	for i := 0; i < args.Ngames || args.Ngames == -1; i++ {
+	for i := 0; i < args.Ngames || args.Ngames == 0; i++ {
 		startTime := time.Now()
 		matcher := &Matcher{
 			Fr:      args.Fr,
