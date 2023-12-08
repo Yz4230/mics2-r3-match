@@ -15,20 +15,20 @@ type Result struct {
 
 type Matcher struct {
 	// first player random
-	Fr string
+	Fr int
 	// first player depth
-	Fd string
+	Fd int
 	// second player random
-	Sr string
+	Sr int
 	// second player depth
-	Sd string
+	Sd int
 	// byoyomi
-	Byoyomi string
+	Byoyomi int
 }
 
 func (m *Matcher) Match() (*Result, error) {
-	firstCmd := exec.Command("./minishogi", "-r", m.Fr, "-d", m.Fd)
-	secondCmd := exec.Command("./minishogi", "-r", m.Sr, "-d", m.Sd)
+	firstCmd := exec.Command("./minishogi", "-r", fmt.Sprint(m.Fr), "-d", fmt.Sprint(m.Fd))
+	secondCmd := exec.Command("./minishogi", "-r", fmt.Sprint(m.Sr), "-d", fmt.Sprint(m.Sd))
 
 	FIRST.Log(firstCmd.String())
 	SECOND.Log(secondCmd.String())
@@ -80,7 +80,7 @@ func (m *Matcher) Match() (*Result, error) {
 			usi += " moves " + strings.Join(moves, " ")
 		}
 		currentStdinWriter.Write([]byte(usi + "\n"))
-		currentStdinWriter.Write([]byte(fmt.Sprintf("go byoyomi %s\n", m.Byoyomi)))
+		currentStdinWriter.Write([]byte(fmt.Sprintf("go byoyomi %d\n", m.Byoyomi)))
 		for {
 			// bestmoveを受け取るまで待つ
 			line, _ := currentStdinReader.ReadString('\n')

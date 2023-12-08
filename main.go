@@ -23,38 +23,38 @@ var secondStyle = lipgloss.NewStyle().
 
 type Args struct {
 	// first player random
-	Fr string
+	Fr int
 	// first player depth
-	Fd string
+	Fd int
 	// second player random
-	Sr string
+	Sr int
 	// second player depth
-	Sd string
+	Sd int
 	// number of games
 	Ngames int
 	// verbose
 	Verbose bool
 	// byoyomi
-	Byoyomi string
+	Byoyomi int
 }
 
 var args Args
 
 func init() {
-	flag.StringVar(&args.Fr, "fr", "0", "first player random")
-	flag.StringVar(&args.Fd, "fd", "7", "first player depth")
-	flag.StringVar(&args.Sr, "sr", "0", "second player random")
-	flag.StringVar(&args.Sd, "sd", "7", "second player depth")
+	flag.IntVar(&args.Fr, "fr", 0, "first player random")
+	flag.IntVar(&args.Fd, "fd", 7, "first player depth")
+	flag.IntVar(&args.Sr, "sr", 0, "second player random")
+	flag.IntVar(&args.Sd, "sd", 7, "second player depth")
 	flag.IntVar(&args.Ngames, "n", 1, "number of games")
 	flag.BoolVar(&args.Verbose, "v", false, "verbose")
-	flag.StringVar(&args.Byoyomi, "b", "10000", "byoyomi")
+	flag.IntVar(&args.Byoyomi, "b", 10000, "byoyomi")
 
 	flag.Parse()
 }
 
 func getOutdirName() string {
 	// example: fr5-fd6-sr7-sd8
-	return fmt.Sprintf("fr%s-fd%s-sr%s-sd%s", args.Fr, args.Fd, args.Sr, args.Sd)
+	return fmt.Sprintf("fr%d-fd%d-sr%d-sd%d", args.Fr, args.Fd, args.Sr, args.Sd)
 }
 
 func getFilename() string {
@@ -100,7 +100,7 @@ func main() {
 	createDirIfNotExists(outdir)
 	fmt.Printf("outdir: %s\n", outdir)
 
-	for i := 0; i < args.Ngames; i++ {
+	for i := 0; i < args.Ngames || args.Ngames == -1; i++ {
 		startTime := time.Now()
 		matcher := &Matcher{
 			Fr:      args.Fr,
