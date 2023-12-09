@@ -41,7 +41,7 @@ func Test_parseSfen(t *testing.T) {
 			},
 		},
 		{
-			name: "r3b/1k1p1/s1g1b/P4/KGSBR w - 32",
+			name: "r3b/1k1p1/s3g/P4/KGSBR w - 32",
 			args: args{
 				sfen: "r3b/1k1p1/s3g/P4/KGSBR w - 32",
 			},
