@@ -36,18 +36,21 @@ type Args struct {
 	Verbose bool
 	// byoyomi
 	Byoyomi int
+	// no output
+	NoOutput bool
 }
 
 var args Args
 
 func init() {
 	flag.IntVar(&args.Fr, "fr", 0, "first player random")
-	flag.IntVar(&args.Fd, "fd", 7, "first player depth")
+	flag.IntVar(&args.Fd, "fd", 127, "first player depth")
 	flag.IntVar(&args.Sr, "sr", 0, "second player random")
-	flag.IntVar(&args.Sd, "sd", 7, "second player depth")
+	flag.IntVar(&args.Sd, "sd", 127, "second player depth")
 	flag.IntVar(&args.Ngames, "n", 1, "number of games")
 	flag.BoolVar(&args.Verbose, "v", false, "verbose")
 	flag.IntVar(&args.Byoyomi, "b", 10000, "byoyomi")
+	flag.BoolVar(&args.NoOutput, "no-output", false, "no output")
 
 	flag.Parse()
 }
@@ -96,9 +99,11 @@ func exportToFile(result *Result) error {
 }
 
 func main() {
-	outdir := getOutdirName()
-	createDirIfNotExists(outdir)
-	fmt.Printf("outdir: %s\n", outdir)
+	if !args.NoOutput {
+		outdir := getOutdirName()
+		createDirIfNotExists(outdir)
+		fmt.Printf("outdir: %s\n", outdir)
+	}
 
 	for i := 0; i < args.Ngames || args.Ngames == 0; i++ {
 		startTime := time.Now()
@@ -116,6 +121,8 @@ func main() {
 		elapsed := time.Since(startTime)
 		elapsed = elapsed.Round(time.Second)
 		fmt.Printf("game %d/%d: %s (%s)\n", i+1, args.Ngames, result.winner, elapsed)
-		exportToFile(result)
+		if !args.NoOutput {
+			exportToFile(result)
+		}
 	}
 }
