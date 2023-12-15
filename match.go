@@ -14,10 +14,14 @@ type Result struct {
 }
 
 type Matcher struct {
+	// first player program
+	Fp string
 	// first player random
 	Fr int
 	// first player depth
 	Fd int
+	// second player program
+	Sp string
 	// second player random
 	Sr int
 	// second player depth
@@ -27,8 +31,8 @@ type Matcher struct {
 }
 
 func (m *Matcher) Match() (*Result, error) {
-	firstCmd := exec.Command("./minishogi", "-r", fmt.Sprint(m.Fr), "-d", fmt.Sprint(m.Fd))
-	secondCmd := exec.Command("./minishogi", "-r", fmt.Sprint(m.Sr), "-d", fmt.Sprint(m.Sd))
+	firstCmd := exec.Command(m.Fp, "-r", fmt.Sprint(m.Fr), "-d", fmt.Sprint(m.Fd))
+	secondCmd := exec.Command(m.Sp, "-r", fmt.Sprint(m.Sr), "-d", fmt.Sprint(m.Sd))
 
 	FIRST.Log(firstCmd.String())
 	SECOND.Log(secondCmd.String())

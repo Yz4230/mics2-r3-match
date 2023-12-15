@@ -22,10 +22,14 @@ var secondStyle = lipgloss.NewStyle().
 	Bold(true)
 
 type Args struct {
+	// first player program
+	Fp string
 	// first player random
 	Fr int
 	// first player depth
 	Fd int
+	// second player program
+	Sp string
 	// second player random
 	Sr int
 	// second player depth
@@ -43,8 +47,10 @@ type Args struct {
 var args Args
 
 func init() {
+	flag.StringVar(&args.Fp, "fp", "./minishogi", "first player program")
 	flag.IntVar(&args.Fr, "fr", 0, "first player random")
 	flag.IntVar(&args.Fd, "fd", 127, "first player depth")
+	flag.StringVar(&args.Sp, "sp", "./minishogi", "second player program")
 	flag.IntVar(&args.Sr, "sr", 0, "second player random")
 	flag.IntVar(&args.Sd, "sd", 127, "second player depth")
 	flag.IntVar(&args.Ngames, "n", 1, "number of games")
@@ -108,6 +114,8 @@ func main() {
 	for i := 0; i < args.Ngames || args.Ngames == 0; i++ {
 		startTime := time.Now()
 		matcher := &Matcher{
+			Fp:      args.Fp,
+			Sp:      args.Sp,
 			Fr:      args.Fr,
 			Fd:      args.Fd,
 			Sr:      args.Sr,
