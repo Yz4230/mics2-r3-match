@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math/rand"
 	"os/exec"
 	"strings"
 )
@@ -16,14 +17,14 @@ type Result struct {
 type Matcher struct {
 	// first player program
 	Fp string
-	// first player random
-	Fr int
+	// first player random rate
+	Fr float64
 	// first player depth
 	Fd int
 	// second player program
 	Sp string
-	// second player random
-	Sr int
+	// second player random rate
+	Sr float64
 	// second player depth
 	Sd int
 	// byoyomi
@@ -31,8 +32,9 @@ type Matcher struct {
 }
 
 func (m *Matcher) Match() (*Result, error) {
-	firstCmd := exec.Command(m.Fp, "-r", fmt.Sprint(m.Fr), "-d", fmt.Sprint(m.Fd))
-	secondCmd := exec.Command(m.Sp, "-r", fmt.Sprint(m.Sr), "-d", fmt.Sprint(m.Sd))
+	firstCmd := exec.Command(m.Fp, "-d", fmt.Sprint(m.Fd))
+	secondCmd := exec.Command(m.Sp, "-d", fmt.Sprint(m.Sd))
+	randomCmd := exec.Command("./minishogi-random")
 
 	FIRST.Log(firstCmd.String())
 	SECOND.Log(secondCmd.String())
@@ -45,11 +47,17 @@ func (m *Matcher) Match() (*Result, error) {
 	secondCmdStdout, _ := secondCmd.StdoutPipe()
 	secondStdinReader := bufio.NewReader(secondCmdStdout)
 
+	randomCmdStdin, _ := randomCmd.StdinPipe()
+	randomCmdStdout, _ := randomCmd.StdoutPipe()
+	randomStdinReader := bufio.NewReader(randomCmdStdout)
+
 	firstCmd.Start()
 	secondCmd.Start()
+	randomCmd.Start()
 
 	firstCmdStdin.Write([]byte("isready\n"))
 	secondCmdStdin.Write([]byte("isready\n"))
+	randomCmdStdin.Write([]byte("isready\n"))
 
 	// wait for readyok
 	for {
@@ -68,6 +76,13 @@ func (m *Matcher) Match() (*Result, error) {
 			break
 		}
 	}
+	for {
+		line, _ := randomStdinReader.ReadString('\n')
+		line = strings.TrimSpace(line)
+		if line == "readyok" {
+			break
+		}
+	}
 
 	moves := []string{}
 	sfens := []string{}
@@ -78,6 +93,18 @@ func (m *Matcher) Match() (*Result, error) {
 	stop := false
 	for maxCount := 500; maxCount > 0 && !stop; maxCount-- {
 		verbose(strings.Repeat("-", 20))
+
+		useRandom := false
+		if side == FIRST {
+			useRandom = m.Fr > 0 && rand.Float64() < m.Fr
+		} else {
+			useRandom = m.Sr > 0 && rand.Float64() < m.Sr
+		}
+		if useRandom {
+			currentStdinReader = randomStdinReader
+			currentStdinWriter = randomCmdStdin
+			side.Log("use random")
+		}
 
 		usi := "position startpos"
 		if len(moves) > 0 {

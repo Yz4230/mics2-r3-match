@@ -25,13 +25,13 @@ type Args struct {
 	// first player program
 	Fp string
 	// first player random
-	Fr int
+	Fr float64
 	// first player depth
 	Fd int
 	// second player program
 	Sp string
 	// second player random
-	Sr int
+	Sr float64
 	// second player depth
 	Sd int
 	// number of games
@@ -48,10 +48,10 @@ var args Args
 
 func init() {
 	flag.StringVar(&args.Fp, "fp", "./minishogi", "first player program")
-	flag.IntVar(&args.Fr, "fr", 0, "first player random")
+	flag.Float64Var(&args.Fr, "fr", 0, "first player random rate")
 	flag.IntVar(&args.Fd, "fd", 127, "first player depth")
 	flag.StringVar(&args.Sp, "sp", "./minishogi", "second player program")
-	flag.IntVar(&args.Sr, "sr", 0, "second player random")
+	flag.Float64Var(&args.Sr, "sr", 0, "second player random rate")
 	flag.IntVar(&args.Sd, "sd", 127, "second player depth")
 	flag.IntVar(&args.Ngames, "n", 1, "number of games")
 	flag.BoolVar(&args.Verbose, "v", false, "verbose")
@@ -61,9 +61,17 @@ func init() {
 	flag.Parse()
 }
 
+func checkRandomPlayer() {
+	// check './minishogi-ramdom' exists
+	if _, err := os.Stat("./minishogi-random"); os.IsNotExist(err) {
+		fmt.Println("error: './minishogi-random' not found")
+		os.Exit(1)
+	}
+}
+
 func getOutdirName() string {
-	// example: fr5-fd6-sr7-sd8
-	return fmt.Sprintf("fr%d-fd%d-sr%d-sd%d", args.Fr, args.Fd, args.Sr, args.Sd)
+	// example: fr0.5-fd6-sr0.7-sd8
+	return fmt.Sprintf("fr%.1f-fd%d-sr%.1f-sd%d", args.Fr, args.Fd, args.Sr, args.Sd)
 }
 
 func getFilename() string {
@@ -105,6 +113,8 @@ func exportToFile(result *Result) error {
 }
 
 func main() {
+	checkRandomPlayer()
+
 	if !args.NoOutput {
 		outdir := getOutdirName()
 		createDirIfNotExists(outdir)
