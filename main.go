@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
@@ -26,14 +27,10 @@ type Args struct {
 	Fp string
 	// first player random
 	Fr float64
-	// first player depth
-	Fd int
 	// second player program
 	Sp string
 	// second player random
 	Sr float64
-	// second player depth
-	Sd int
 	// number of games
 	Ngames int
 	// verbose
@@ -42,6 +39,8 @@ type Args struct {
 	Byoyomi int
 	// no output
 	NoOutput bool
+	// output directory
+	Outdir string
 }
 
 var args Args
@@ -49,14 +48,13 @@ var args Args
 func init() {
 	flag.StringVar(&args.Fp, "fp", "./minishogi", "first player program")
 	flag.Float64Var(&args.Fr, "fr", 0, "first player random rate")
-	flag.IntVar(&args.Fd, "fd", 127, "first player depth")
 	flag.StringVar(&args.Sp, "sp", "./minishogi", "second player program")
 	flag.Float64Var(&args.Sr, "sr", 0, "second player random rate")
-	flag.IntVar(&args.Sd, "sd", 127, "second player depth")
 	flag.IntVar(&args.Ngames, "n", 1, "number of games")
 	flag.BoolVar(&args.Verbose, "v", false, "verbose")
 	flag.IntVar(&args.Byoyomi, "b", 10000, "byoyomi")
 	flag.BoolVar(&args.NoOutput, "no-output", false, "no output")
+	flag.StringVar(&args.Outdir, "outdir", "", "output directory")
 
 	flag.Parse()
 }
@@ -67,11 +65,6 @@ func checkRandomPlayer() {
 		fmt.Println("error: './minishogi-random' not found")
 		os.Exit(1)
 	}
-}
-
-func getOutdirName() string {
-	// example: fr0.5-fd6-sr0.7-sd8
-	return fmt.Sprintf("fr%.1f-fd%d-sr%.1f-sd%d", args.Fr, args.Fd, args.Sr, args.Sd)
 }
 
 func getFilename() string {
@@ -89,9 +82,8 @@ func createDirIfNotExists(dir string) error {
 }
 
 func exportToFile(result *Result) error {
-	outdir := getOutdirName()
 	filename := getFilename()
-	f, err := os.Create(fmt.Sprintf("%s/%s", outdir, filename))
+	f, err := os.Create(path.Join(args.Outdir, filename))
 	if err != nil {
 		return err
 	}
@@ -116,9 +108,8 @@ func main() {
 	checkRandomPlayer()
 
 	if !args.NoOutput {
-		outdir := getOutdirName()
-		createDirIfNotExists(outdir)
-		fmt.Printf("outdir: %s\n", outdir)
+		createDirIfNotExists(args.Outdir)
+		fmt.Printf("outdir: %s\n", args.Outdir)
 	}
 
 	for i := 0; i < args.Ngames || args.Ngames == 0; i++ {
@@ -127,9 +118,7 @@ func main() {
 			Fp:      args.Fp,
 			Sp:      args.Sp,
 			Fr:      args.Fr,
-			Fd:      args.Fd,
 			Sr:      args.Sr,
-			Sd:      args.Sd,
 			Byoyomi: args.Byoyomi,
 		}
 		result, err := matcher.Match()

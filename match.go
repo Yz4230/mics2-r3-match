@@ -19,21 +19,17 @@ type Matcher struct {
 	Fp string
 	// first player random rate
 	Fr float64
-	// first player depth
-	Fd int
 	// second player program
 	Sp string
 	// second player random rate
 	Sr float64
-	// second player depth
-	Sd int
 	// byoyomi
 	Byoyomi int
 }
 
 func (m *Matcher) Match() (*Result, error) {
-	firstCmd := exec.Command(m.Fp, "-d", fmt.Sprint(m.Fd))
-	secondCmd := exec.Command(m.Sp, "-d", fmt.Sprint(m.Sd))
+	firstCmd := exec.Command(m.Fp)
+	secondCmd := exec.Command(m.Sp)
 	randomCmd := exec.Command("./minishogi-random")
 
 	FIRST.Log(firstCmd.String())
